@@ -1,6 +1,6 @@
 ﻿namespace DB_Lab6.Database.Entities;
 
-public class User
+public class User : BaseEntity
 {
     public string Name { get; set; }
     public string Email { get; set; }

@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace DB_Lab6.Database.Repositories;
 
-public class Repository<T> where T : BsonValue
+public class Repository<T> where T : BaseEntity
 {
     private readonly IMongoCollection<T> _collection;
 
@@ -13,23 +13,30 @@ public class Repository<T> where T : BsonValue
         _collection = client.GetDatabase(databaseName).GetCollection<T>(collectionName);
     }
 
-    public void Save(T entity)
+    public async Task SaveAsync(T entity)
     {
-        _collection.InsertOne(entity);
+        await _collection.InsertOneAsync(entity);
     }
 
-    public void Update(T document)
+    public async Task Update(T document)
     {
-        _collection.UpdateOne(new BsonDocument("_id", document.AsObjectId), new BsonDocument("$set", document));
+       var filter = Builders<T>.Filter.Eq("_id", document.Id);
+       await _collection.ReplaceOneAsync(filter, document);
     }
 
-    public void Delete(T document)
+    public async Task Delete(T document)
     {
-        _collection.DeleteOne(new BsonDocument("_id", document.AsObjectId));
+        await _collection.DeleteOneAsync(new BsonDocument("_id", document.Id));
     }
 
-    public T GetById(string id)
+    public async Task<T> GetById(string id)
     {
-        return _collection.Find(new BsonDocument("_id", id)).FirstOrDefault();
+        var filter = Builders<T>.Filter.Eq("_id", id);
+        return await _collection.Find(filter).FirstOrDefaultAsync();
+    }
+
+    public async Task<IEnumerable<T>> GetAll()
+    {
+        return await _collection.Find(_ => true).ToListAsync();
     }
 }

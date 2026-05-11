@@ -66,11 +66,11 @@ public abstract class Repository<T> where T : BaseEntity
         return await Collection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<T> GetByIdAsync(string id)
+    public async Task<T?> GetByIdAsync(string id)
     {
         if (!ObjectId.TryParse(id, out var objectId))
         {
-            return null!;
+            return null;
         }
         else
         {

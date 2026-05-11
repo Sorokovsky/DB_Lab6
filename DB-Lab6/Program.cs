@@ -1,5 +1,6 @@
 ﻿using DB_Lab6.Configs;
 using DB_Lab6.Console.Commands;
+using DB_Lab6.Controllers.Posts;
 using DB_Lab6.Controllers.Users;
 using DB_Lab6.Database;
 using DB_Lab6.Database.Repositories;
@@ -13,7 +14,7 @@ namespace DB_Lab6;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static void Main()
     {
         var configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())
@@ -41,6 +42,7 @@ public static class Program
         var context = new CommandContext("Головне меню", serviceProvider);
         context.AddCommand(new ExitCommand()); 
         context.SetupUserController();
+        context.SetupPostsController();
         context.Start();
     }
 
@@ -54,5 +56,15 @@ public static class Program
         userContext.AddCommand(new ViewAllUsersCommand());
         userContext.AddCommand(new DeleteSelfCommand());
         context.AddCommand(userContext);
+    }
+
+    private static void SetupPostsController(this CommandContext context)
+    {
+        var postsController = new CommandContext("Публікації", context.ServiceProvider);
+        postsController.AddCommand(new ExitCommand());
+        postsController.AddCommand(new CreatePostCommand());
+        postsController.AddCommand(new GetPostsOfUserCommand());
+        postsController.AddCommand(new UpdatePostCommand());
+        context.AddCommand(postsController);
     }
 }

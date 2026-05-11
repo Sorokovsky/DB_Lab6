@@ -25,6 +25,5 @@
 
     <ItemGroup>
       <Folder Include="Controllers\Comments\" />
-      <Folder Include="Controllers\Posts\" />
     </ItemGroup>
 </Project>

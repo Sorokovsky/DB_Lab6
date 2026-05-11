@@ -59,6 +59,7 @@ public static class Program
         userContext.AddCommand(new ViewAllUsersCommand());
         userContext.AddCommand(new DeleteSelfCommand());
         userContext.AddCommand(new FollowCommand());
+        userContext.AddCommand(new ShowFollowedUsersCommand());
         context.AddCommand(userContext);
     }
 

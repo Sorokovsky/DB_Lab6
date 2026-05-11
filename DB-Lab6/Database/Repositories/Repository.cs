@@ -96,6 +96,12 @@ public abstract class Repository<T> where T : BaseEntity
         await Collection.DeleteManyAsync(filter);
     }
 
+    public async Task<IEnumerable<T>> GetManyByIdsAsync(IEnumerable<ObjectId> ids)
+    {
+        var filter = Builders<T>.Filter.In("_id", ids);
+        return await Collection.Find(filter).ToListAsync();
+    }
+
     public async Task<IEnumerable<T>> GetAllAsync()
     {
         return await Collection.Find(_ => true).ToListAsync();

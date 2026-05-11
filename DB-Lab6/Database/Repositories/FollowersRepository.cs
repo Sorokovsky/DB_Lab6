@@ -22,4 +22,10 @@ public class FollowersRepository : Repository<Followers>
             Builders<Followers>.Filter.Eq("FollowerId", userId));
         await Collection.DeleteManyAsync(filter);
     }
+
+    public async Task<IEnumerable<Followers>> GetByFollowerId(ObjectId followerId)
+    {
+        var filter = Builders<Followers>.Filter.Eq("FollowerId", followerId);
+        return await Collection.Find(filter).ToListAsync();
+    }
 }

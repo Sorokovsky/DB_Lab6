@@ -60,6 +60,7 @@ public static class Program
         userContext.AddCommand(new DeleteSelfCommand());
         userContext.AddCommand(new FollowCommand());
         userContext.AddCommand(new ShowFollowedUsersCommand());
+        userContext.AddCommand(new DisallowCommand());
         context.AddCommand(userContext);
     }
 

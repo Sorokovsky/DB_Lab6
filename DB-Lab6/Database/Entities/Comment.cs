@@ -1,6 +1,4 @@
-﻿// Entities/Comment.cs
-
-using DB_Lab6.Database.Entities;
+﻿using DB_Lab6.Database.Entities;
 using MongoDB.Bson;
 
 public class Comment : BaseEntity
@@ -24,4 +22,16 @@ public class Comment : BaseEntity
         var text = Console.ReadLine() ?? string.Empty;
         return new Comment(ObjectId.Empty, post.Id, user.Id, text, DateTime.UtcNow);
     }
+
+    public override string ToString()
+    {
+        var result = string.Empty;
+        result += $"Ідентифікатор: {Id}\n";
+        result += $"Текст: {Content}\n";
+        result += $"Дата створення: {Timestamp}\n";
+        result += $"Ідентифікатор автора: {UserId}\n";
+        result += $"Ідентифікатор Публікації: {PostId}\n";
+        return result;
+    }
+
 }

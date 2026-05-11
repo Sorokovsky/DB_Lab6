@@ -75,6 +75,8 @@ public static class Program
         var commentsContext = new CommandContext("Коментарі", context.ServiceProvider);
         commentsContext.AddCommand(new ExitCommand());
         commentsContext.AddCommand(new CreateCommentCommand());
+        commentsContext.AddCommand(new ShowCommentsByPostCommand());
+        commentsContext.AddCommand(new RemoveCommentCommand());
         context.AddCommand(commentsContext);
     }
 }

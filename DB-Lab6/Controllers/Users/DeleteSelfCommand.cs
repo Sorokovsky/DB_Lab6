@@ -1,4 +1,5 @@
 ﻿using DB_Lab6.Console.Commands;
+using DB_Lab6.Database;
 using DB_Lab6.Database.Repositories;
 using DB_Lab6.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,17 +13,33 @@ public class DeleteSelfCommand : Command
     public override void Execute(CommandContext context)
     {
         var service = context.ServiceProvider.GetRequiredService<AuthorizationService>();
-        var repository = context.ServiceProvider.GetRequiredService<UsersRepository>();
+        var usersRepository = context.ServiceProvider.GetRequiredService<UsersRepository>();
+        var postsRepository = context.ServiceProvider.GetRequiredService<PostsRepository>();
+        var commentsRepository = context.ServiceProvider.GetRequiredService<CommentsRepository>();
         var user = service.GetAuthorizedUser();
         if (user == null)
         {
             System.Console.WriteLine("Не авторизовано.");
+            return;
         }
-        else
+        var database = context.ServiceProvider.GetRequiredService<DatabaseContext>();
+        var session = database.Client.StartSession();
+        try
         {
-            repository.DeleteAsync(user).Wait();
+            session.StartTransaction();
+            usersRepository.DeleteAsync(session, user).Wait();
+            var posts = postsRepository.GetAllByUser(user.Id).Result.Select(x => x.Id);
+            postsRepository.DeleteManyAsync(session, posts).Wait();
+            var comments = commentsRepository.GetByUser(user.Id).Result.Select(x => x.Id);
+            commentsRepository.DeleteManyAsync(session, comments).Wait();
             service.Logout();
             System.Console.WriteLine("Успішно видалено.");
+            session.CommitTransaction();
+        }
+        catch (Exception exception)
+        {
+            session.AbortTransaction();
+            System.Console.WriteLine("Сталася помилка: " + exception.Message);
         }
     }
 }

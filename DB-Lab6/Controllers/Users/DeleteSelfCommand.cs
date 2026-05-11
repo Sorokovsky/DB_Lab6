@@ -21,6 +21,7 @@ public class DeleteSelfCommand : Command
         else
         {
             repository.DeleteAsync(user).Wait();
+            service.Logout();
             System.Console.WriteLine("Успішно видалено.");
         }
     }

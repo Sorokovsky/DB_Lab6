@@ -58,9 +58,9 @@ public class CommandContext : Command
             {
                 System.Console.WriteLine(exception.Message);
             }
-            catch (Exception)
+            catch (Exception exception)
             {
-                System.Console.WriteLine("Невідома помилка, спробуйте ще");
+                System.Console.WriteLine($"Невідома помилка({exception.Message}), спробуйте ще");
             }
         }
     }

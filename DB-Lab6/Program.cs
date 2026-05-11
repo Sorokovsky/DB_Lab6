@@ -1,5 +1,6 @@
 ﻿using DB_Lab6.Configs;
 using DB_Lab6.Console.Commands;
+using DB_Lab6.Controllers.Comments;
 using DB_Lab6.Controllers.Posts;
 using DB_Lab6.Controllers.Users;
 using DB_Lab6.Database;
@@ -43,6 +44,7 @@ public static class Program
         context.AddCommand(new ExitCommand()); 
         context.SetupUserController();
         context.SetupPostsController();
+        context.SetupCommentsController();
         context.Start();
     }
 
@@ -66,5 +68,13 @@ public static class Program
         postsController.AddCommand(new GetPostsOfUserCommand());
         postsController.AddCommand(new UpdatePostCommand());
         context.AddCommand(postsController);
+    }
+
+    private static void SetupCommentsController(this CommandContext context)
+    {
+        var commentsContext = new CommandContext("Коментарі", context.ServiceProvider);
+        commentsContext.AddCommand(new ExitCommand());
+        commentsContext.AddCommand(new CreateCommentCommand());
+        context.AddCommand(commentsContext);
     }
 }

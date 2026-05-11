@@ -17,4 +17,11 @@ public class Comment : BaseEntity
     public ObjectId UserId { get; set; }
     public string Content { get; set; }
     public DateTime Timestamp { get; set; }
+
+    public static Comment Enter(Post post, User user)
+    {
+        Console.Write("Введіть текст коментаря: ");
+        var text = Console.ReadLine() ?? string.Empty;
+        return new Comment(ObjectId.Empty, post.Id, user.Id, text, DateTime.UtcNow);
+    }
 }

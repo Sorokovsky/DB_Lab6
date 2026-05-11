@@ -24,6 +24,16 @@ public abstract class Repository<T> where T : BaseEntity
         await Collection.InsertOneAsync(entity);
         return entity;
     }
+    
+    public async Task<T> SaveAsync(IClientSessionHandle session, T entity)
+    {
+        if (entity.Id == ObjectId.Empty)
+        {
+            entity.Id = ObjectId.GenerateNewId();
+        }
+        await Collection.InsertOneAsync(entity);
+        return entity;
+    }
 
     public async Task SaveManyAsync(IEnumerable<T> entities)
     {
@@ -36,8 +46,27 @@ public abstract class Repository<T> where T : BaseEntity
         }
         await Collection.InsertManyAsync(entities);
     }
+    
+    public async Task SaveManyAsync(IClientSessionHandle session, IEnumerable<T> entities)
+    {
+        foreach (var entity in entities)
+        {
+            if (entity.Id == ObjectId.Empty)
+            {
+                entity.Id = ObjectId.GenerateNewId();
+            }
+        }
+        await Collection.InsertManyAsync(entities);
+    }
+    
 
     public async Task UpdateAsync(T document)
+    {
+        var filter = Builders<T>.Filter.Eq("_id", document.Id);
+        await Collection.ReplaceOneAsync(filter, document);
+    }
+    
+    public async Task UpdateAsync(IClientSessionHandle session, T document)
     {
         var filter = Builders<T>.Filter.Eq("_id", document.Id);
         await Collection.ReplaceOneAsync(filter, document);
@@ -48,8 +77,20 @@ public abstract class Repository<T> where T : BaseEntity
         var filter = Builders<T>.Filter.Eq("_id", document.Id);
         await Collection.DeleteOneAsync(filter);
     }
+    
+    public async Task DeleteAsync(IClientSessionHandle session, T document)
+    {
+        var filter = Builders<T>.Filter.Eq("_id", document.Id);
+        await Collection.DeleteOneAsync(filter);
+    }
 
     public async Task DeleteManyAsync(IEnumerable<ObjectId> ids)
+    {
+        var filter = Builders<T>.Filter.In("_id", ids);
+        await Collection.DeleteManyAsync(filter);
+    }
+    
+    public async Task DeleteManyAsync(IClientSessionHandle session, IEnumerable<ObjectId> ids)
     {
         var filter = Builders<T>.Filter.In("_id", ids);
         await Collection.DeleteManyAsync(filter);
@@ -72,10 +113,8 @@ public abstract class Repository<T> where T : BaseEntity
         {
             return null;
         }
-        else
-        {
-            return await GetByIdAsync(objectId);
-        }
+
+        return await GetByIdAsync(objectId);
     }
     
     protected abstract IMongoCollection<T> GetCollection(DatabaseContext context); 

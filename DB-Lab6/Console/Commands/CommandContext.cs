@@ -8,15 +8,19 @@ public class CommandContext : Command
 {
     private readonly LinkedList<Command> _commands = [];
     private СommandsInput _input;
-    private bool _isRunning = false;
+    private bool _isRunning;
     private Encoding inputEncoding;
     private Encoding outputEncoding;
+    private readonly IServiceProvider _serviceProvider;
+    
+    public IServiceProvider ServiceProvider => _serviceProvider;
     
     protected override string Name { get; }
 
-    public CommandContext(string name)
+    public CommandContext(string name, IServiceProvider serviceProvider)
     {
         Name = name;
+        _serviceProvider = serviceProvider;
     }
 
     public void AddCommand(Command command)

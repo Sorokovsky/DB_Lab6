@@ -4,39 +4,79 @@ using MongoDB.Driver;
 
 namespace DB_Lab6.Database.Repositories;
 
-public class Repository<T> where T : BaseEntity
+public abstract class Repository<T> where T : BaseEntity
 {
-    private readonly IMongoCollection<T> _collection;
+    private readonly DatabaseContext _context;
+    protected readonly IMongoCollection<T> Collection;
 
-    public Repository(MongoClient client, string databaseName, string collectionName)
+    protected Repository(DatabaseContext context)
     {
-        _collection = client.GetDatabase(databaseName).GetCollection<T>(collectionName);
+        _context = context;
+        Collection = GetCollection(context);
     }
 
-    public async Task SaveAsync(T entity)
+    public async Task<T> SaveAsync(T entity)
     {
-        await _collection.InsertOneAsync(entity);
+        if (entity.Id == ObjectId.Empty)
+        {
+            entity.Id = ObjectId.GenerateNewId();
+        }
+        await Collection.InsertOneAsync(entity);
+        return entity;
     }
 
-    public async Task Update(T document)
+    public async Task SaveManyAsync(IEnumerable<T> entities)
     {
-       var filter = Builders<T>.Filter.Eq("_id", document.Id);
-       await _collection.ReplaceOneAsync(filter, document);
+        foreach (var entity in entities)
+        {
+            if (entity.Id == ObjectId.Empty)
+            {
+                entity.Id = ObjectId.GenerateNewId();
+            }
+        }
+        await Collection.InsertManyAsync(entities);
     }
 
-    public async Task Delete(T document)
+    public async Task UpdateAsync(T document)
     {
-        await _collection.DeleteOneAsync(new BsonDocument("_id", document.Id));
+        var filter = Builders<T>.Filter.Eq("_id", document.Id);
+        await Collection.ReplaceOneAsync(filter, document);
     }
 
-    public async Task<T> GetById(string id)
+    public async Task DeleteAsync(T document)
+    {
+        var filter = Builders<T>.Filter.Eq("_id", document.Id);
+        await Collection.DeleteOneAsync(filter);
+    }
+
+    public async Task DeleteManyAsync(IEnumerable<ObjectId> ids)
+    {
+        var filter = Builders<T>.Filter.In("_id", ids);
+        await Collection.DeleteManyAsync(filter);
+    }
+
+    public async Task<IEnumerable<T>> GetAllAsync()
+    {
+        return await Collection.Find(_ => true).ToListAsync();
+    }
+
+    public async Task<T> GetByIdAsync(ObjectId id)
     {
         var filter = Builders<T>.Filter.Eq("_id", id);
-        return await _collection.Find(filter).FirstOrDefaultAsync();
+        return await Collection.Find(filter).FirstOrDefaultAsync();
     }
 
-    public async Task<IEnumerable<T>> GetAll()
+    public async Task<T> GetByIdAsync(string id)
     {
-        return await _collection.Find(_ => true).ToListAsync();
+        if (!ObjectId.TryParse(id, out var objectId))
+        {
+            return null!;
+        }
+        else
+        {
+            return await GetByIdAsync(objectId);
+        }
     }
+    
+    protected abstract IMongoCollection<T> GetCollection(DatabaseContext context); 
 }

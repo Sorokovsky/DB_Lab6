@@ -3,8 +3,13 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace DB_Lab6.Database.Entities;
 
-public class BaseEntity
+public abstract class BaseEntity
 {
     [BsonId]
     public ObjectId Id { get; set; }
+
+    protected BaseEntity(ObjectId id)
+    {
+        Id = id;
+    }
 }

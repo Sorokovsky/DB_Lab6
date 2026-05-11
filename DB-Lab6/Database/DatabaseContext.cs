@@ -19,9 +19,11 @@ public class DatabaseContext
         _database = _client.GetDatabase(_config.DatabaseName);
     }
     
-    public IMongoCollection<User> Users => _database.GetCollection<User>("Users");
-    public IMongoCollection<Post> Posts => _database.GetCollection<Post>("Posts");
-    public IMongoCollection<Comment> Comments => _database.GetCollection<Comment>("Comments");
+    public IMongoCollection<User> Users => _database.GetCollection<User>(nameof(Users));
+    public IMongoCollection<Post> Posts => _database.GetCollection<Post>(nameof(Posts));
+    public IMongoCollection<Comment> Comments => _database.GetCollection<Comment>(nameof(Comments));
+    
+    public IMongoCollection<Followers> Followers => _database.GetCollection<Followers>(nameof(Followers));
     
     public IMongoClient Client => _client;
     public IMongoDatabase Database => _database;

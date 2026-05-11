@@ -27,6 +27,7 @@ public static class Program
         services.AddSingleton<UsersRepository>();
         services.AddSingleton<PostsRepository>();
         services.AddSingleton<CommentsRepository>();
+        services.AddSingleton<FollowersRepository>();
         services.AddSingleton<AuthorizationService>();
         services.AddSingleton<IMongoClient>(builder =>
         {
@@ -57,6 +58,7 @@ public static class Program
         userContext.AddCommand(new ProfileCommand());
         userContext.AddCommand(new ViewAllUsersCommand());
         userContext.AddCommand(new DeleteSelfCommand());
+        userContext.AddCommand(new FollowCommand());
         context.AddCommand(userContext);
     }
 

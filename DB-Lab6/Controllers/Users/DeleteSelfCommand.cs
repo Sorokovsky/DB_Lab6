@@ -32,6 +32,8 @@ public class DeleteSelfCommand : Command
             postsRepository.DeleteManyAsync(session, posts).Wait();
             var comments = commentsRepository.GetByUser(user.Id).Result.Select(x => x.Id);
             commentsRepository.DeleteManyAsync(session, comments).Wait();
+            var followersRepository = context.ServiceProvider.GetRequiredService<FollowersRepository>();
+            followersRepository.RemoveByUserAsync(session, user.Id).Wait();
             service.Logout();
             System.Console.WriteLine("Успішно видалено.");
             session.CommitTransaction();
